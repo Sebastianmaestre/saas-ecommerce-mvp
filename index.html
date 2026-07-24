@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Tienda — Una infraestructura, miles de tiendas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E14;
+    --surface:#10141F;
+    --surface-2:#161B29;
+    --line: rgba(237,239,244,0.08);
+    --text:#EDEFF4;
+    --text-muted:#8A93AC;
+    --core:#5B8DEF;
+    --core-soft: rgba(91,141,239,0.14);
+    --t-coral:#F2545B;
+    --t-amber:#F2C14E;
+    --t-green:#4FB286;
+    --t-violet:#B98CE0;
+    --radius: 14px;
+    --disp: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
+
+  /* NAV */
+  nav{
+    position:sticky; top:0; z-index:20;
+    background:rgba(11,14,20,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:64px;}
+  .brand{font-family:var(--disp); font-weight:600; font-size:15px; letter-spacing:0.02em; display:flex; align-items:center; gap:8px;}
+  .brand-dot{width:8px; height:8px; border-radius:50%; background:var(--core); box-shadow:0 0 0 4px var(--core-soft);}
+  nav .links{display:flex; gap:28px; font-size:13px; color:var(--text-muted);}
+  nav .links a{text-decoration:none; transition:color .2s;}
+  nav .links a:hover{color:var(--text);}
+  .nav-cta{font-size:13px; padding:8px 16px; border:1px solid var(--line); border-radius:8px; text-decoration:none; color:var(--text); transition:border-color .2s, background .2s;}
+  .nav-cta:hover{border-color:var(--core); background:var(--core-soft);}
+
+  /* HERO */
+  header.hero{padding:100px 0 60px; position:relative; overflow:hidden;}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; color:var(--core);
+    text-transform:uppercase; letter-spacing:0.12em;
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--core-soft); border:1px solid rgba(91,141,239,0.3);
+    padding:5px 12px; border-radius:100px; margin-bottom:24px;
+  }
+  h1{
+    font-family:var(--disp); font-weight:700;
+    font-size:clamp(34px, 5.4vw, 58px);
+    line-height:1.06; letter-spacing:-0.02em;
+    max-width:760px;
+  }
+  h1 .accent{color:var(--core);}
+  .hero-sub{
+    margin-top:22px; max-width:560px; color:var(--text-muted); font-size:17px;
+  }
+  .hero-actions{display:flex; gap:14px; margin-top:36px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--body); font-weight:600; font-size:14px;
+    padding:13px 22px; border-radius:9px; text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:var(--core); color:#08101F;}
+  .btn-primary:hover{background:#78A2F5;}
+  .btn-ghost{border:1px solid var(--line); color:var(--text);}
+  .btn-ghost:hover{border-color:rgba(237,239,244,0.25);}
+
+  /* DIAGRAM */
+  .diagram-shell{
+    margin-top:64px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--surface); overflow:hidden;
+  }
+  .diagram-shell .head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:12px; color:var(--text-muted);
+  }
+  .diagram-shell .head .req{color:var(--text);}
+  svg#flow{display:block; width:100%; height:auto;}
+
+  .lane-label{font-family:var(--mono); font-size:11px; fill:var(--text-muted);}
+  .lane-chip{font-family:var(--mono); font-size:10px;}
+  .db-row{font-family:var(--mono); font-size:10px; fill:var(--text-muted);}
+  .db-row.hl{fill:var(--text);}
+
+  .dot{r:4.5;}
+  @keyframes travel{ to { offset-distance: 100%; } }
+  .path-anim{
+    offset-distance:0%;
+    animation-name: travel;
+    animation-duration: 3.2s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .path-anim{ animation: none; offset-distance: 62%; }
+  }
+
+  /* SECTION SHARED */
+  section{padding:88px 0; border-top:1px solid var(--line);}
+  .section-head{max-width:620px; margin-bottom:48px;}
+  .kicker{font-family:var(--mono); font-size:12px; color:var(--core); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:14px;}
+  h2{font-family:var(--disp); font-weight:600; font-size:clamp(26px,3.2vw,36px); letter-spacing:-0.01em;}
+  .section-head p{margin-top:14px; color:var(--text-muted); font-size:16px;}
+
+  /* PROBLEM GRID */
+  .compare{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .compare .col{background:var(--surface); padding:28px;}
+  .compare h3{font-family:var(--disp); font-size:16px; font-weight:600; margin-bottom:16px;}
+  .compare.bad h3{color:var(--t-coral);}
+  .compare.good h3{color:var(--t-green);}
+  .compare ul{list-style:none;}
+  .compare li{
+    font-size:14.5px; color:var(--text-muted); padding:10px 0 10px 22px;
+    border-top:1px solid var(--line); position:relative;
+  }
+  .compare li:first-child{border-top:none;}
+  .compare li::before{
+    content:''; position:absolute; left:0; top:17px; width:8px; height:8px; border-radius:2px;
+  }
+  .bad li::before{background:var(--t-coral); opacity:0.7;}
+  .good li::before{background:var(--t-green); opacity:0.85; border-radius:50%;}
+
+  @media (max-width: 720px){ .compare{grid-template-columns:1fr;} }
+
+  /* LAYERS - numbered sequence (real request lifecycle order) */
+  .layers{display:flex; flex-direction:column; gap:0;}
+  .layer{
+    display:grid; grid-template-columns:56px 1fr; gap:20px;
+    padding:26px 0; border-top:1px solid var(--line);
+  }
+  .layer:first-child{border-top:none;}
+  .layer-num{
+    font-family:var(--mono); font-size:13px; color:var(--core);
+    width:40px; height:40px; border:1px solid rgba(91,141,239,0.35);
+    border-radius:10px; display:flex; align-items:center; justify-content:center;
+  }
+  .layer h4{font-family:var(--disp); font-size:17px; font-weight:600; margin-bottom:6px;}
+  .layer p{color:var(--text-muted); font-size:14.5px; max-width:520px;}
+  .layer code{font-family:var(--mono); font-size:13px; background:var(--surface-2); padding:2px 7px; border-radius:5px; color:var(--core);}
+
+  /* ROADMAP */
+  .roadmap{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .roadmap .col{background:var(--surface); padding:28px;}
+  .roadmap h3{font-family:var(--disp); font-size:15px; font-weight:600; margin-bottom:18px; display:flex; align-items:center; gap:9px;}
+  .status-dot{width:9px; height:9px; border-radius:50%;}
+  .status-dot.done{background:var(--t-green);}
+  .status-dot.pending{background:var(--text-muted); opacity:0.5;}
+  .roadmap ul{list-style:none;}
+  .roadmap li{font-size:14px; padding:9px 0; border-top:1px solid var(--line); color:var(--text-muted);}
+  .roadmap li:first-child{border-top:none;}
+  .roadmap .col.done li{color:var(--text);}
+  @media (max-width: 720px){ .roadmap{grid-template-columns:1fr;} }
+
+  /* STACK */
+  .stack-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .stack-pill{
+    font-family:var(--mono); font-size:12.5px; color:var(--text-muted);
+    border:1px solid var(--line); padding:8px 14px; border-radius:100px;
+  }
+
+  /* CTA / FOOTER */
+  footer{padding:80px 0 48px;}
+  .cta-box{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--surface);
+    padding:52px 40px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:20px;
+  }
+  .cta-box h2{max-width:520px;}
+  .foot-meta{
+    margin-top:56px; display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:14px; color:var(--text-muted); font-size:13px;
+  }
+  .foot-meta a{text-decoration:none; color:var(--text-muted); transition:color .2s;}
+  .foot-meta a:hover{color:var(--text);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="brand-dot"></span>MULTI-TIENDA</div>
+    <div class="links">
+      <a href="#arquitectura">Arquitectura</a>
+      <a href="#garantias">Aislamiento</a>
+      <a href="#estado">Estado</a>
+    </div>
+    <a class="nav-cta" href="#contacto">Hablemos</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">● Row-level tenancy — pensado para 2000+ tiendas</span>
+    <h1>Una infraestructura.<br>Miles de tiendas <span class="accent">totalmente aisladas.</span></h1>
+    <p class="hero-sub">
+      En vez de una base de datos por tienda, todas comparten el mismo esquema — y cada fila
+      sabe de quién es. Migraciones, backups y conexiones se gestionan una sola vez, no dos mil.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#garantias">Cómo se garantiza el aislamiento</a>
+      <a class="btn btn-ghost" href="#contacto">Conversar sobre tu proyecto</a>
+    </div>
+
+    <div class="diagram-shell">
+      <div class="head">
+        <span>flujo de request en vivo</span>
+        <span class="req">tienda123.plataforma.com/products</span>
+      </div>
+      <svg id="flow" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- lane paths -->
+        <path id="p1" d="M40,50 C 240,50 300,150 470,150" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+        <path id="p2" d="M40,110 C 240,110 320,150 470,150" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+        <path id="p3" d="M40,190 C 240,190 320,150 470,150" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+        <path id="p4" d="M40,250 C 240,250 300,150 470,150" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+        <path id="trunk" d="M470,150 L 640,150" fill="none" stroke="var(--core)" stroke-width="1.5" opacity="0.5"/>
+
+        <!-- lane entry labels -->
+        <text x="40" y="34" class="lane-label" fill="var(--t-coral)">tienda123</text>
+        <text x="40" y="94" class="lane-label" fill="var(--t-amber)">ferreteria-lp</text>
+        <text x="40" y="174" class="lane-label" fill="var(--t-green)">moda-urbana</text>
+        <text x="40" y="234" class="lane-label" fill="var(--t-violet)">cafe-central</text>
+
+        <!-- entry dots (static, tenant color) -->
+        <circle cx="40" cy="50" r="4" fill="var(--t-coral)"/>
+        <circle cx="40" cy="110" r="4" fill="var(--t-amber)"/>
+        <circle cx="40" cy="190" r="4" fill="var(--t-green)"/>
+        <circle cx="40" cy="250" r="4" fill="var(--t-violet)"/>
+
+        <!-- travelling dots -->
+        <circle class="dot path-anim" fill="var(--t-coral)" style="offset-path:path('M40,50 C 240,50 300,150 470,150 L 640,150'); animation-delay:0s;"/>
+        <circle class="dot path-anim" fill="var(--t-amber)" style="offset-path:path('M40,110 C 240,110 320,150 470,150 L 640,150'); animation-delay:0.8s;"/>
+        <circle class="dot path-anim" fill="var(--t-green)" style="offset-path:path('M40,190 C 240,190 320,150 470,150 L 640,150'); animation-delay:1.6s;"/>
+        <circle class="dot path-anim" fill="var(--t-violet)" style="offset-path:path('M40,250 C 240,250 300,150 470,150 L 640,150'); animation-delay:2.4s;"/>
+
+        <!-- middleware node -->
+        <rect x="430" y="128" width="80" height="44" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="470" y="146" text-anchor="middle" class="lane-label" fill="var(--text)">Tenant</text>
+        <text x="470" y="160" text-anchor="middle" class="lane-label" fill="var(--text)">Middleware</text>
+
+        <!-- shared table -->
+        <rect x="650" y="60" width="210" height="180" rx="10" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="665" y="82" class="lane-label" fill="var(--text-muted)">products (tabla única)</text>
+        <line x1="650" y1="92" x2="860" y2="92" stroke="var(--line)"/>
+
+        <rect x="655" y="100" width="4" height="20" fill="var(--t-coral)"/>
+        <text x="668" y="114" class="db-row hl">…tenantId: 7c31</text>
+
+        <rect x="655" y="126" width="4" height="20" fill="var(--t-amber)"/>
+        <text x="668" y="140" class="db-row">…tenantId: 9a02</text>
+
+        <rect x="655" y="152" width="4" height="20" fill="var(--t-green)"/>
+        <text x="668" y="166" class="db-row">…tenantId: e410</text>
+
+        <rect x="655" y="178" width="4" height="20" fill="var(--t-violet)"/>
+        <text x="668" y="192" class="db-row">…tenantId: b558</text>
+
+        <rect x="655" y="204" width="4" height="20" fill="var(--t-coral)" opacity="0.4"/>
+        <text x="668" y="218" class="db-row" opacity="0.5">WHERE tenantId = ...</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section id="arquitectura">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">El problema de escalar tienda por tienda</div>
+      <h2>Una base de datos por cliente no aguanta miles.</h2>
+      <p>Es la opción intuitiva al principio, y la que más se paga después: cada tienda nueva
+      multiplica el trabajo operativo en vez de sumarlo.</p>
+    </div>
+    <div class="compare">
+      <div class="col bad">
+        <h3>DB por tienda</h3>
+        <ul>
+          <li>2000 migraciones cuando cambia el esquema</li>
+          <li>2000 backups, 2000 conexiones activas</li>
+          <li>Cada tienda nueva es una tarea de infraestructura</li>
+          <li>El costo de servidor crece linealmente con los clientes</li>
+        </ul>
+      </div>
+      <div class="col good">
+        <h3>Row-level tenancy</h3>
+        <ul>
+          <li>Un esquema, una migración, todas las tiendas al día</li>
+          <li>Un pool de conexiones para toda la plataforma</li>
+          <li>Alta de tienda nueva: un registro, no un deploy</li>
+          <li>El costo escala con el uso real, no con la cantidad de clientes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="garantias">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Cómo se garantiza el aislamiento</div>
+      <h2>Tres capas, en el orden en que corren en cada request.</h2>
+      <p>El riesgo real de compartir esquema es que un desarrollador se olvide del filtro y
+      exponga datos de otra tienda. Estas capas hacen que ese error sea prácticamente imposible.</p>
+    </div>
+    <div class="layers">
+      <div class="layer">
+        <div class="layer-num">01</div>
+        <div>
+          <h4>Se resuelve el tenant una sola vez</h4>
+          <p>El <code>TenantMiddleware</code> lee el subdominio (o dominio propio) apenas entra el
+          request y lo cuelga en <code>req.tenantId</code> antes de que llegue a cualquier controller.</p>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-num">02</div>
+        <div>
+          <h4>Se inyecta donde se necesita</h4>
+          <p>El decorator <code>@CurrentTenant()</code> lo pone a disposición de cualquier
+          controller, sin pasarlo manualmente por cada capa de la app.</p>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-num">03</div>
+        <div>
+          <h4>La base de datos lo exige</h4>
+          <p><code>PrismaService.forTenant()</code> fuerza el <code>where: tenantId</code> en
+          todos los queries — el filtro no depende de que nadie se acuerde de escribirlo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="estado">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Estado actual</div>
+      <h2>Lo que ya funciona y lo que falta para el MVP.</h2>
+    </div>
+    <div class="roadmap">
+      <div class="col done">
+        <h3><span class="status-dot done"></span>Ya construido</h3>
+        <ul>
+          <li>Tenant middleware + resolución por subdominio</li>
+          <li>Modelo de datos completo (Prisma)</li>
+          <li>Alta / baja de tiendas (panel super-admin)</li>
+          <li>CRUD de productos, aislado por tenant</li>
+          <li>Referencia de despliegue con Nginx wildcard</li>
+        </ul>
+      </div>
+      <div class="col pending">
+        <h3><span class="status-dot pending"></span>En construcción</h3>
+        <ul>
+          <li>Módulo de auth con JWT (login por tienda + super-admin)</li>
+          <li>Órdenes: carrito → checkout → pago</li>
+          <li>Guard de roles (super-admin / admin de tienda / staff)</li>
+          <li>Integración de pagos según mercado</li>
+          <li>Storefront público y rate limiting por tienda</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Stack</div>
+      <h2>Herramientas pensadas para producción, no para una demo.</h2>
+    </div>
+    <div class="stack-row">
+      <span class="stack-pill">NestJS</span>
+      <span class="stack-pill">Prisma</span>
+      <span class="stack-pill">PostgreSQL</span>
+      <span class="stack-pill">Nginx (wildcard subdomain)</span>
+      <span class="stack-pill">Docker</span>
+      <span class="stack-pill">Next.js (storefront, próximamente)</span>
+    </div>
+  </div>
+</section>
+
+<footer id="contacto">
+  <div class="wrap">
+    <div class="cta-box">
+      <div class="kicker">Siguiente paso</div>
+      <h2>¿Necesitás una plataforma multi-tienda para tu negocio?</h2>
+      <p style="color:var(--text-muted); max-width:480px;">
+        Este MVP está listo como base técnica. Puedo adaptarlo a tu caso: rubro, medios de pago,
+        y el módulo de checkout que te falte.
+      </p>
+      <a class="btn btn-primary" href="https://sebastianmaestre.github.io" target="_blank" rel="noopener">Ver portafolio de IRIS</a>
+    </div>
+    <div class="foot-meta">
+      <span>IRIS — Sebastián Maestre</span>
+      <a href="https://sebastianmaestre.github.io" target="_blank" rel="noopener">sebastianmaestre.github.io</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
